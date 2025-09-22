@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Show do Milhão - História</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8ff; color: #333; text-align: center; padding: 20px; }
+        #game { max-width: 800px; margin: auto; background: linear-gradient(to bottom, #87ceeb, #00bfff); padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        h1 { color: #ffd700; text-shadow: 2px 2px 4px #000; }
+        button { background-color: #32cd32; color: white; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; }
+        button:hover { background-color: #228b22; }
+        .option { background-color: #ff8c00; width: 100%; margin: 10px 0; }
+        .option:hover { background-color: #ff4500; }
+        .correct { background-color: #00ff00 !important; }
+        .wrong { background-color: #ff0000 !important; }
+        #lifelines button { background-color: #1e90ff; }
+        #lifelines button:hover { background-color: #104e8b; }
+        #lifelines button:disabled { background-color: #a9a9a9; cursor: not-allowed; }
+        #godmod { background-color: #ffd700; color: #000; }
+        #godmod.active { background-color: #ff0000; }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>Show do Milhão - História</h1>
+        <button id="start">Iniciar Jogo</button>
+        <button id="godmod">Ativar God Mode</button>
+        <div id="question"></div>
+        <div id="options"></div>
+        <div id="lifelines">
+            <button id="skip">Pular</button>
+            <button id="consult">Consultar o Caderno (50/50)</button>
+            <button id="quit">Desistir</button>
+        </div>
+        <div id="score">Pontuação: 0</div>
+        <div id="message"></div>
+    </div>
+    <script>
+        const questions = [{'question': 'How many wives did Henry VIII have?', 'options': ['Four', 'Five', 'Six', 'Seven'], 'answer': 2}, {'question': 'In which year did the First World War end?', 'options': ['1914', '1918', '1920', '1919'], 'answer': 1}, {'question': "Which nurse was nicknamed 'The Lady with the Lamp'?", 'options': ['Clara Barton', 'Florence Nightingale', 'Mary Seacole', 'Edith Cavell'], 'answer': 1}, {'question': 'What is Samuel Pepys famous for?', 'options': ['His poetry', 'His diary', 'His paintings', 'His scientific discoveries'], 'answer': 1}, {'question': 'Which famous queen of ancient Egypt married the Roman leader Mark Anthony?', 'options': ['Nefertiti', 'Hatshepsut', 'Cleopatra', 'Isis'], 'answer': 2}, {'question': 'In which year was the Battle of Hastings?', 'options': ['1066', '1215', '1453', '1492'], 'answer': 0}, {'question': 'Who rose to power as the leader of the Nazi party?', 'options': ['Benito Mussolini', 'Adolf Hitler', 'Joseph Stalin', 'Franklin D. Roosevelt'], 'answer': 1}, {'question': 'In which year did Christopher Columbus discover America?', 'options': ['1492', '1488', '1500', '1453'], 'answer': 0}, {'question': 'On what type of medieval building would you find battlements?', 'options': ['Church', 'Castle', 'Manor house', 'Cathedral'], 'answer': 1}, {'question': 'Who invented the telephone?', 'options': ['Thomas Edison', 'Alexander Graham Bell', 'Nikola Tesla', 'Guglielmo Marconi'], 'answer': 1}, {'question': 'Which ancient people worshiped cats?', 'options': ['Greeks', 'Egyptians', 'Romans', 'Persians'], 'answer': 1}, {'question': 'Which queen of England was married to Albert and wore mourning for the rest of her life after his death?', 'options': ['Queen Elizabeth I', 'Queen Victoria', 'Queen Anne', 'Queen Mary'], 'answer': 1}, {'question': 'Which US president was assassinated in 1963?', 'options': ['Abraham Lincoln', 'John F. Kennedy', 'Franklin D. Roosevelt', 'Theodore Roosevelt'], 'answer': 1}, {'question': 'Who discovered penicillin, revolutionizing medicine?', 'options': ['Louis Pasteur', 'Alexander Fleming', 'Robert Koch', 'Joseph Lister'], 'answer': 1}, {'question': 'Can you name the third of Henry VIII’s wives?', 'options': ['Anne Boleyn', 'Jane Seymour', 'Catherine of Aragon', 'Anne of Cleves'], 'answer': 1}, {'question': 'The Trojan War was a battle between which two ancient cities?', 'options': ['Troy and Sparta', 'Troy and Mycenae', 'Athens and Troy', 'Mycenae and Sparta'], 'answer': 1}, {'question': 'Who was the youngest king of England?', 'options': ['Edward VI', 'Henry VI', 'Richard II', 'Edward V'], 'answer': 1}, {'question': 'Which type of beetle was worshiped by the ancient Egyptians?', 'options': ['Scarab beetle', 'Dung beetle', 'Ladybug', 'Stag beetle'], 'answer': 0}, {'question': "How long did the '100-Year War' last?", 'options': ['100 years', '116 years', '95 years', '125 years'], 'answer': 1}, {'question': 'Which medieval queen was married to both Louis VII of France and Henry II of England?', 'options': ['Eleanor of Aquitaine', 'Isabella of France', 'Matilda of Scotland', 'Joan of Navarre'], 'answer': 0}, {'question': 'Who was the first president of the United States of America?', 'options': ['Thomas Jefferson', 'George Washington', 'John Adams', 'Benjamin Franklin'], 'answer': 1}, {'question': 'Which US president abolished slavery?', 'options': ['Abraham Lincoln', 'Andrew Johnson', 'Ulysses S. Grant', 'Theodore Roosevelt'], 'answer': 0}, {'question': 'By what name were the Egyptian kings/rulers known?', 'options': ['Emperors', 'Pharaohs', 'Kings', 'Sultans'], 'answer': 1}, {'question': 'How many Pyramids of Giza were made?', 'options': ['Two', 'Three', 'Four', 'Five'], 'answer': 1}, {'question': 'Where did the Franks settle after defeating the Romans?', 'options': ['Britannia', 'Gaul', 'Hispania', 'Italia'], 'answer': 1}, {'question': 'How long did the Middle Ages last?', 'options': ['500 years', 'About 1000 years', '1200 years', '800 years'], 'answer': 1}, {'question': 'Which religion dominated the Middle Ages?', 'options': ['Islam', 'Catholicism', 'Orthodoxy', 'Judaism'], 'answer': 1}, {'question': 'In which year did World War I begin?', 'options': ['1914', '1918', '1939', '1945'], 'answer': 0}, {'question': 'In which country was Adolf Hitler born?', 'options': ['Germany', 'Austria', 'Italy', 'Hungary'], 'answer': 1}, {'question': 'John F. Kennedy was assassinated in which city?', 'options': ['Washington, D.C.', 'New York', 'Dallas', 'Los Angeles'], 'answer': 2}, {'question': 'On Sunday 18th June 1815, which famous battle took place?', 'options': ['Battle of Austerlitz', 'Battle of Waterloo', 'Battle of Trafalgar', 'Battle of Leipzig'], 'answer': 1}, {'question': 'What event marked the beginning of World War I?', 'options': ['The Treaty of Versailles', 'The assassination of Archduke Franz Ferdinand', 'The sinking of the Lusitania', 'The invasion of Poland'], 'answer': 1}, {'question': 'Who was the leader of the Soviet Union during World War II?', 'options': ['Vladimir Lenin', 'Joseph Stalin', 'Nikita Khrushchev', 'Leon Trotsky'], 'answer': 1}, {'question': 'What ancient wonder was located in the city of Alexandria in Egypt?', 'options': ['Hanging Gardens', 'The Lighthouse of Alexandria', 'Colossus of Rhodes', 'Statue of Zeus'], 'answer': 1}, {'question': 'What was the name of the ship that brought the Pilgrims to America in 1620?', 'options': ['Santa Maria', 'The Mayflower', 'HMS Victory', 'The Discovery'], 'answer': 1}, {'question': 'In what year did the Berlin Wall fall?', 'options': ['1985', '1989', '1991', '1995'], 'answer': 1}, {'question': 'In which year did World War II end?', 'options': ['1943', '1945', '1947', '1950'], 'answer': 1}, {'question': 'In what year did the Titanic sink?', 'options': ['1910', '1912', '1915', '1918'], 'answer': 1}, {'question': 'In what year did the Great Fire of London occur?', 'options': ['1660', '1666', '1670', '1680'], 'answer': 1}, {'question': 'Which American president was involved in the Watergate scandal?', 'options': ['Richard Nixon', 'Gerald Ford', 'Jimmy Carter', 'Ronald Reagan'], 'answer': 0}, {'question': 'What are the surnames of the father-son duos who both served as US presidents?', 'options': ['Roosevelt and Truman', 'Adams and Bush', 'Kennedy and Johnson', 'Clinton and Obama'], 'answer': 1}];
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let godMode = false;
+        let usedSkip = false;
+        let usedConsult = false;
+
+        const startButton = document.getElementById('start');
+        const godModButton = document.getElementById('godmod');
+        const questionDiv = document.getElementById('question');
+        const optionsDiv = document.getElementById('options');
+        const skipButton = document.getElementById('skip');
+        const consultButton = document.getElementById('consult');
+        const quitButton = document.getElementById('quit');
+        const scoreDiv = document.getElementById('score');
+        const messageDiv = document.getElementById('message');
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startGame() {
+            currentQuestions = shuffle([...questions]).slice(0, 20); // Select 20 random
+            currentIndex = 0;
+            score = 0;
+            usedSkip = false;
+            usedConsult = false;
+            updateScore();
+            enableLifelines();
+            showQuestion();
+            startButton.textContent = 'Reiniciar Jogo';
+            messageDiv.textContent = '';
+        }
+
+        function updateScore() {
+            scoreDiv.textContent = `Pontuação: ${score}`;
+        }
+
+        function enableLifelines() {
+            skipButton.disabled = usedSkip;
+            consultButton.disabled = usedConsult;
+            quitButton.disabled = false;
+        }
+
+        function showQuestion() {
+            if (currentIndex >= currentQuestions.length) {
+                endGame('Você completou todas as 20 questões!');
+                return;
+            }
+            const q = currentQuestions[currentIndex];
+            questionDiv.textContent = `${currentIndex + 1}. ${q.question}`;
+            optionsDiv.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.textContent = `${String.fromCharCode(65 + idx)}. ${opt}`;
+                btn.classList.add('option');
+                btn.onclick = () => handleAnswer(idx);
+                optionsDiv.appendChild(btn);
+            });
+            if (godMode) {
+                optionsDiv.children[q.answer].classList.add('correct');
+            }
+            enableLifelines();
+        }
+
+        function handleAnswer(selected) {
+            const q = currentQuestions[currentIndex];
+            const correct = q.answer;
+            if (godMode) {
+                // No punishment, just proceed if correct or not
+                if (selected === correct) {
+                    score++;
+                    updateScore();
+                }
+                currentIndex++;
+                showQuestion();
+            } else {
+                if (selected === correct) {
+                    score++;
+                    updateScore();
+                    currentIndex++;
+                    showQuestion();
+                } else {
+                    endGame('Resposta errada! Fim de jogo.');
+                }
+            }
+        }
+
+        function endGame(msg) {
+            messageDiv.textContent = `${msg} Pontuação final: ${score}`;
+            questionDiv.textContent = '';
+            optionsDiv.innerHTML = '';
+            skipButton.disabled = true;
+            consultButton.disabled = true;
+            quitButton.disabled = true;
+        }
+
+        function skipQuestion() {
+            if (!usedSkip) {
+                usedSkip = true;
+                currentIndex++;
+                showQuestion();
+            }
+        }
+
+        function consultCaderno() {
+            if (!usedConsult) {
+                usedConsult = true;
+                const q = currentQuestions[currentIndex];
+                const correct = q.answer;
+                let wrongIndices = [0,1,2,3].filter(i => i !== correct);
+                shuffle(wrongIndices);
+                const toRemove = wrongIndices.slice(0,2);
+                toRemove.forEach(idx => {
+                    optionsDiv.children[idx].style.display = 'none';
+                });
+            }
+        }
+
+        function quitGame() {
+            endGame('Você desistiu.');
+        }
+
+        function toggleGodMode() {
+            godMode = !godMode;
+            godModButton.classList.toggle('active');
+            godModButton.textContent = godMode ? 'Desativar God Mode' : 'Ativar God Mode';
+            if (currentIndex < currentQuestions.length) {
+                showQuestion(); // Refresh to show/hide highlight
+            }
+        }
+
+        startButton.onclick = startGame;
+        godModButton.onclick = toggleGodMode;
+        skipButton.onclick = skipQuestion;
+        consultButton.onclick = consultCaderno;
+        quitButton.onclick = quitGame;
+    </script>
+</body>
+</html>
